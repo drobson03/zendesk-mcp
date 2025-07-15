@@ -1,0 +1,15 @@
+diff --git a/src/Generated.ts b/src/Generated.ts
+index 71b0e54..c231bae 100644
+--- a/src/Generated.ts
++++ b/src/Generated.ts
+@@ -7650,9 +7650,7 @@ export class ListTriggerCategories200Res extends S.Struct({
+   "trigger_categories": S.optionalWith(S.Array(S.Record({ key: S.String, value: S.Unknown })), { nullable: true })
+ }) {}
+ 
+-export class ListTriggerCategories200 extends S.Struct({
+-  "res": S.optionalWith(ListTriggerCategories200Res, { nullable: true })
+-}) {}
++export class ListTriggerCategories200 extends ListTriggerCategories200Res {}
+ 
+ export class CreateTriggerCategoryRequestTriggerCategory extends S.Struct({
+   "name": S.String,

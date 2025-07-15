@@ -1,0 +1,29 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "rules": {
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off"
+      },
+      "suspicious": {
+        "noShadowRestrictedNames": "off"
+      },
+      "nursery": {
+        "noShadow": "off"
+      },
+      "style": {
+        "useFilenamingConvention": "off"
+      }
+    }
+  },
+  "extends": ["ultracite"]
+}

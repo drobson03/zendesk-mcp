@@ -1,0 +1,31 @@
+{
+  "name": "zendesk-mcp",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsx --env-file=.env src/main.ts"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
+    "@effect/language-service": "^0.25.1",
+    "@types/node": "^24.0.13",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "ultracite": "5.0.35"
+  },
+  "dependencies": {
+    "@effect/ai": "^0.22.0",
+    "@effect/platform": "^0.88.0",
+    "@effect/platform-node": "^0.90.0",
+    "@tim-smart/openapi-gen": "^0.4.13",
+    "effect": "^3.16.13"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

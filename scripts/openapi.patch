@@ -1,0 +1,19 @@
+diff --git a/tmp/openapi.yaml b/tmp/openapi.yaml
+index 93b772e..2c0613c 100644
+--- a/tmp/openapi.yaml
++++ b/tmp/openapi.yaml
+@@ -11867,9 +11867,11 @@ paths:
+           content:
+             application/json:
+               schema:
+-                allOf:
+-                  - $ref: '#/components/schemas/TriggerCategoriesResponse'
+-                  - $ref: '#/components/schemas/Pagination'
++                properties:
++                  res:
++                    allOf:
++                      - $ref: '#/components/schemas/TriggerCategoriesResponse'
++                      - $ref: '#/components/schemas/Pagination'
+               example:
+                 links:
+                   next: https://{subdomain}.zendesk.com/api/v2/trigger_categories.json?include=rule_counts&page[after]=eyJvIjoiLXNjb3JlLGlkIiwidiI6ImFRSUFBQUFBQUFBQWFRMHBJUUVBQUFBQSJ9&page[size]=2&sort=position
