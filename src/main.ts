@@ -7,7 +7,6 @@ import { FetchHttpClient, HttpRouter } from "@effect/platform";
 import { createServer } from "node:http";
 
 Layer.mergeAll(TicketsTools, HttpRouter.Default.serve()).pipe(
-  // Provide the MCP server implementation
   Layer.provide(
     McpServer.layerHttp({
       name: "zendesk-mcp",

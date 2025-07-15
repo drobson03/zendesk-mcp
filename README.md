@@ -1,12 +1,11 @@
 # zendesk-mcp
 
-A MCP server for Zendesk, using the [Zendesk API](https://developer.zendesk.com/api-reference) and built with [Effect](https://effect.website).
+An MCP server for Zendesk, using the [Zendesk API](https://developer.zendesk.com/api-reference) and built with [Effect](https://effect.website).
 
 ## Usage
 
 ```bash
-pnpm install
-pnpm start
+pnpm dlx @drobson03/zendesk-mcp
 ```
 
 ## Configuration

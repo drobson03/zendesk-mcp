@@ -1,5 +1,5 @@
 /**
- * @since 0.0.0
+ * @since 1.0.0
  */
 
 // biome-ignore-all lint/suspicious/noExplicitAny: required

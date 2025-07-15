@@ -1,5 +1,5 @@
 /**
- * @since 0.0.0
+ * @since 1.0.0
  */
 
 import { AiError } from "@effect/ai/AiError";
@@ -17,7 +17,7 @@ import type * as Redacted from "effect/Redacted";
 import * as Generated from "./Generated.js";
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Types
  */
 export type WrappedClient = {
@@ -29,7 +29,7 @@ export type WrappedClient = {
 };
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Context
  */
 export class ZendeskClient extends Context.Tag("zendesk-mcp/ZendeskClient")<
@@ -38,7 +38,7 @@ export class ZendeskClient extends Context.Tag("zendesk-mcp/ZendeskClient")<
 >() {}
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Utilities
  */
 const wrapWithAiError = <A, E, R>(
@@ -71,7 +71,7 @@ const wrapWithAiError = <A, E, R>(
   });
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Utilities
  */
 const wrapClient = (client: Generated.Client): WrappedClient => {
@@ -101,7 +101,7 @@ const wrapClient = (client: Generated.Client): WrappedClient => {
 };
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Constructors
  */
 export const make = (options: {
@@ -144,7 +144,7 @@ export const make = (options: {
   });
 
 /**
- * @since 0.0.0
+ * @since 1.0.0
  * @category Layers
  */
 export const layer = (options: {
