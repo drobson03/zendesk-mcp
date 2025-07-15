@@ -1,5 +1,5 @@
 {
-  "name": "zendesk-mcp",
+  "name": "@drobson03/zendesk-mcp",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
