@@ -1,18 +1,23 @@
 {
   "name": "@drobson03/zendesk-mcp",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "An MCP server for Zendesk",
   "main": "main.js",
   "keywords": [],
   "author": "Darcy Robson <17976794+drobson03@users.noreply.github.com>",
   "license": "MIT",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
   "bin": {
     "zendesk-mcp": "main.js"
   },
   "scripts": {
     "build": "tsdown && cp package.json LICENSE README.md dist/",
-    "start": "tsx --env-file=.env src/main.ts"
+    "start": "tsx --env-file=.env src/main.ts",
+    "prepack": "pnpm build"
   },
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { McpServer } from "@effect/ai";
 import {
   NodeHttpServer,
@@ -5,47 +6,38 @@ import {
   NodeSink,
   NodeStream,
 } from "@effect/platform-node";
-import { Config, Layer, Logger } from "effect";
+import { Config, Layer } from "effect";
 import { TicketsTools } from "./Tickets";
 import * as ZendeskClient from "./ZendeskClient";
-import { FetchHttpClient, HttpRouter } from "@effect/platform";
+import { FetchHttpClient, HttpRouter, HttpServer } from "@effect/platform";
 import { createServer } from "node:http";
 import { parseArgs } from "node:util";
+import * as packageJson from "../package.json";
 
 const { values } = parseArgs({
   options: {
     transport: {
       type: "string",
-      default: "stdio",
+      default: "http",
     },
   },
 });
 
-const transport =
-  values.transport === "http" || values.transport === "stdio"
-    ? values.transport
-    : "stdio";
-
-const createMcpServerLayer = (transportType: "stdio" | "http") => {
-  if (transportType === "http") {
-    return McpServer.layerHttp({
-      name: "zendesk-mcp",
-      version: "1.0.0",
-      path: "/mcp",
-    });
-  }
-
-  return McpServer.layerStdio({
-    name: "zendesk-mcp",
-    version: "1.0.0",
-    stdin: NodeStream.stdin,
-    stdout: NodeSink.stdout,
-  });
-};
+const mcpServerLayer =
+  values.transport === "stdio"
+    ? McpServer.layerStdio({
+        name: "zendesk-mcp",
+        version: packageJson.version,
+        stdin: NodeStream.stdin,
+        stdout: NodeSink.stdout,
+      })
+    : McpServer.layerHttp({
+        name: "zendesk-mcp",
+        version: packageJson.version,
+        path: "/mcp",
+      });
 
 const baseLayer = Layer.mergeAll(TicketsTools).pipe(
-  Layer.provide(createMcpServerLayer(transport)),
-  Layer.provide(Logger.add(Logger.prettyLogger({ stderr: true }))),
   Layer.provide(
     ZendeskClient.layerConfig({
       username: Config.redacted("ZENDESK_API_USERNAME"),
@@ -56,12 +48,14 @@ const baseLayer = Layer.mergeAll(TicketsTools).pipe(
   Layer.provide(FetchHttpClient.layer),
 );
 
-const finalLayer =
-  transport === "http"
+const finalLayer = (
+  values.transport === "http"
     ? baseLayer.pipe(
         Layer.provide(HttpRouter.Default.serve()),
+        HttpServer.withLogAddress,
         Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
       )
-    : baseLayer;
+    : baseLayer
+).pipe(Layer.provide(mcpServerLayer));
 
 finalLayer.pipe(Layer.launch, NodeRuntime.runMain);
