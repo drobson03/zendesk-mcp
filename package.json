@@ -1,6 +1,6 @@
 {
   "name": "@drobson03/zendesk-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An MCP server for Zendesk",
   "main": "main.js",
   "keywords": [],
@@ -17,19 +17,19 @@
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",
-    "@effect/language-service": "^0.25.1",
+    "@effect/language-service": "^0.27.1",
     "@tim-smart/openapi-gen": "^0.4.13",
-    "@types/node": "^24.0.13",
+    "@types/node": "^24.0.14",
     "tsdown": "^0.12.9",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "ultracite": "5.0.35"
+    "ultracite": "5.0.36"
   },
   "dependencies": {
-    "@effect/ai": "^0.22.0",
-    "@effect/platform": "^0.88.0",
-    "@effect/platform-node": "^0.90.0",
-    "effect": "^3.16.13"
+    "@effect/ai": "^0.22.1",
+    "@effect/platform": "^0.88.1",
+    "@effect/platform-node": "^0.91.0",
+    "effect": "^3.16.16"
   },
   "engines": {
     "node": ">=22"
