@@ -2,9 +2,7 @@
  * @since 1.0.0
  */
 
-import { AiError } from "@effect/ai/AiError";
 import * as HttpClient from "@effect/platform/HttpClient";
-import * as HttpClientError from "@effect/platform/HttpClientError";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
@@ -12,21 +10,8 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as ParseResult from "effect/ParseResult";
 import type * as Redacted from "effect/Redacted";
 import * as Generated from "./Generated.js";
-
-/**
- * @since 1.0.0
- * @category Types
- */
-export type WrappedClient = {
-  readonly [K in keyof Generated.Client]: Generated.Client[K] extends (
-    ...args: infer Args
-  ) => Effect.Effect<infer A, unknown, infer R>
-    ? (...args: Args) => Effect.Effect<A, AiError, R>
-    : Generated.Client[K];
-};
 
 /**
  * @since 1.0.0
@@ -34,71 +19,8 @@ export type WrappedClient = {
  */
 export class ZendeskClient extends Context.Tag("zendesk-mcp/ZendeskClient")<
   ZendeskClient,
-  WrappedClient
+  Generated.Client
 >() {}
-
-/**
- * @since 1.0.0
- * @category Utilities
- */
-const wrapWithAiError = <A, E, R>(
-  effect: Effect.Effect<A, E, R>,
-  method: string,
-): Effect.Effect<A, AiError, R> =>
-  Effect.mapError(effect, (cause) => {
-    if (HttpClientError.isHttpClientError(cause)) {
-      return new AiError({
-        module: "ZendeskClient",
-        method,
-        description: `HTTP Client Error: ${cause.message}`,
-        cause,
-      });
-    }
-    if (ParseResult.isParseError(cause)) {
-      return new AiError({
-        module: "ZendeskClient",
-        method,
-        description: `Parse Error: ${cause.message}`,
-        cause,
-      });
-    }
-    return new AiError({
-      module: "ZendeskClient",
-      method,
-      description: `Unknown Error: ${String(cause)}`,
-      cause,
-    });
-  });
-
-/**
- * @since 1.0.0
- * @category Utilities
- */
-const wrapClient = (client: Generated.Client): WrappedClient => {
-  return new Proxy(client, {
-    get(target, prop, receiver) {
-      const originalMethod = Reflect.get(target, prop, receiver);
-
-      // Only wrap methods that return Effect
-      if (
-        typeof originalMethod === "function" &&
-        typeof prop === "string" &&
-        prop !== "httpClient"
-      ) {
-        return (...args: unknown[]) => {
-          const result = originalMethod.apply(target, args);
-          if (Effect.isEffect(result)) {
-            return wrapWithAiError(result, prop);
-          }
-
-          return result;
-        };
-      }
-
-      return originalMethod;
-    },
-  }) as unknown as WrappedClient;
-};
 
 /**
  * @since 1.0.0
@@ -124,7 +46,7 @@ export const make = (options: {
   readonly transformClient?:
     | ((client: HttpClient.HttpClient) => HttpClient.HttpClient)
     | undefined;
-}): Effect.Effect<WrappedClient, never, HttpClient.HttpClient> =>
+}): Effect.Effect<Generated.Client, never, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const httpClient = (yield* HttpClient.HttpClient).pipe(
       HttpClient.mapRequest((request) =>
@@ -138,9 +60,8 @@ export const make = (options: {
     );
 
     const client = Generated.make(httpClient);
-    const wrappedClient = wrapClient(client);
 
-    return ZendeskClient.of(wrappedClient);
+    return ZendeskClient.of(client);
   });
 
 /**

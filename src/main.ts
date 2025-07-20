@@ -1,61 +1,34 @@
 #!/usr/bin/env node
-import { McpServer } from "@effect/ai";
-import {
-  NodeHttpServer,
-  NodeRuntime,
-  NodeSink,
-  NodeStream,
-} from "@effect/platform-node";
-import { Config, Layer } from "effect";
-import { TicketsTools } from "./Tickets";
-import * as ZendeskClient from "./ZendeskClient";
-import { FetchHttpClient, HttpRouter, HttpServer } from "@effect/platform";
-import { createServer } from "node:http";
-import { parseArgs } from "node:util";
+import { FetchHttpClient } from "@effect/platform";
+import { NodeRuntime } from "@effect/platform-node";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { Config, Effect, Layer } from "effect";
 import * as packageJson from "../package.json";
+import * as Tickets from "./Tickets";
+import * as ZendeskClient from "./ZendeskClient";
 
-const { values } = parseArgs({
-  options: {
-    transport: {
-      type: "string",
-      default: "http",
-    },
-  },
-});
-
-const mcpServerLayer =
-  values.transport === "stdio"
-    ? McpServer.layerStdio({
-        name: "zendesk-mcp",
-        version: packageJson.version,
-        stdin: NodeStream.stdin,
-        stdout: NodeSink.stdout,
-      })
-    : McpServer.layerHttp({
-        name: "zendesk-mcp",
-        version: packageJson.version,
-        path: "/mcp",
-      });
-
-const baseLayer = Layer.mergeAll(TicketsTools).pipe(
-  Layer.provide(
+const program = Effect.gen(function* () {
+  const toolLayer = Layer.provideMerge(
     ZendeskClient.layerConfig({
       username: Config.redacted("ZENDESK_API_USERNAME"),
       password: Config.redacted("ZENDESK_API_PASSWORD"),
       apiUrl: Config.string("ZENDESK_API_URL"),
     }),
-  ),
-  Layer.provide(FetchHttpClient.layer),
-);
+    FetchHttpClient.layer,
+  );
 
-const finalLayer = (
-  values.transport === "http"
-    ? baseLayer.pipe(
-        Layer.provide(HttpRouter.Default.serve()),
-        HttpServer.withLogAddress,
-        Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
-      )
-    : baseLayer
-).pipe(Layer.provide(mcpServerLayer));
+  const server = new McpServer({
+    name: "zendesk-mcp",
+    version: packageJson.version,
+    title: "Zendesk MCP Server",
+  });
 
-finalLayer.pipe(Layer.launch, NodeRuntime.runMain);
+  const transport = new StdioServerTransport();
+
+  yield* Tickets.registerTools(server, toolLayer);
+
+  return yield* Effect.tryPromise(() => server.connect(transport));
+});
+
+NodeRuntime.runMain(program);
