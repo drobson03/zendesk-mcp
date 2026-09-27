@@ -1,34 +1,34 @@
 #!/usr/bin/env node
-import { FetchHttpClient } from "@effect/platform";
-import { NodeRuntime } from "@effect/platform-node";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { Config, Effect, Layer } from "effect";
+import { NodeRuntime, NodeStdio } from "@effect/platform-node";
+import { Config, Effect, Layer, Logger } from "effect";
+import { McpProtocol, McpServer } from "effect/unstable/ai";
+import { FetchHttpClient } from "effect/unstable/http";
 import * as packageJson from "../package.json";
-import * as Tickets from "./Tickets";
-import * as ZendeskClient from "./ZendeskClient";
+import * as Tickets from "./Tickets.js";
+import * as ZendeskClient from "./ZendeskClient.js";
 
-const program = Effect.gen(function* () {
-  const toolLayer = Layer.provideMerge(
-    ZendeskClient.layerConfig({
-      username: Config.redacted("ZENDESK_API_USERNAME"),
-      password: Config.redacted("ZENDESK_API_PASSWORD"),
-      apiUrl: Config.string("ZENDESK_API_URL"),
-    }),
-    FetchHttpClient.layer,
-  );
+const clientLayer = ZendeskClient.layerConfig({
+  username: Config.Redacted("ZENDESK_API_USERNAME"),
+  password: Config.Redacted("ZENDESK_API_PASSWORD"),
+  apiUrl: Config.String("ZENDESK_API_URL"),
+}).pipe(Layer.provide(FetchHttpClient.layer));
 
-  const server = new McpServer({
-    name: "zendesk-mcp",
-    version: packageJson.version,
-    title: "Zendesk MCP Server",
-  });
+const serverLayer = McpServer.layerStdio({
+  name: "zendesk-mcp",
+  version: packageJson.version,
+  protocols: [
+    McpProtocol.v2025_11_25,
+    McpProtocol.v2025_06_18,
+    McpProtocol.v2025_03_26,
+    McpProtocol.v2024_11_05,
+  ],
+}).pipe(Layer.provide(NodeStdio.layer));
 
-  const transport = new StdioServerTransport();
-
-  yield* Tickets.registerTools(server, toolLayer);
-
-  return yield* Effect.tryPromise(() => server.connect(transport));
-});
-
-NodeRuntime.runMain(program);
+Tickets.layer.pipe(
+  Layer.provide(clientLayer),
+  Layer.provideMerge(serverLayer),
+  Layer.launch,
+  Effect.tapCause(Effect.logError),
+  Effect.provideService(Logger.LogToStderr, true),
+  NodeRuntime.runMain({ disableErrorReporting: true }),
+);

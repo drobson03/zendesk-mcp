@@ -21,25 +21,25 @@
   "scripts": {
     "build": "tsdown && cp package.json LICENSE README.md dist/",
     "start": "tsx --env-file=.env src/main.ts",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "typecheck": "tsc --noEmit",
+    "generate": "bash scripts/generate-openapi.sh"
   },
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "@biomejs/biome": "^2.1.2",
     "@effect/language-service": "^0.27.2",
-    "@tim-smart/openapi-gen": "^0.4.13",
+    "@effect/openapi-generator": "4.0.0-rc.117",
     "@types/node": "^24.0.15",
     "tsdown": "^0.12.9",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "ultracite": "5.0.46"
+    "typescript": "^5.9.3",
+    "ultracite": "5.0.46",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
-    "@effect/platform": "^0.88.2",
-    "@effect/platform-node": "^0.91.0",
-    "@modelcontextprotocol/sdk": "^1.16.0",
-    "effect": "^3.16.16",
-    "zod": "^3.25.76"
+    "@effect/platform-node": "4.0.0-rc.117",
+    "effect": "4.0.0-rc.117"
   },
   "engines": {
     "node": ">=22"
