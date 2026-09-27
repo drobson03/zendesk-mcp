@@ -1,29 +1,18 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-mkdir -p tmp
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+work_dir=$(mktemp -d)
+trap 'rm -rf "$work_dir"' EXIT
 
-SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-
-curl https://developer.zendesk.com/zendesk/oas.yaml -Lo tmp/openapi.yaml
-
-git apply $SCRIPT_DIR/openapi.patch
-
-echo "/**
- * @since 0.0.0
- */
-
- // biome-ignore-all lint/suspicious/noExplicitAny: required
- // biome-ignore-all lint/style/noNonNullAssertion: required
- // biome-ignore-all lint/correctness/noUnusedFunctionParameters: required
- // biome-ignore-all lint/complexity/useLiteralKeys: required
- // biome-ignore-all lint/nursery/useSingleJsDocAsterisk: required
- // biome-ignore-all lint/style/useFilenamingConvention: required" > src/Generated.ts
-
-pnpm openapi-gen -s tmp/openapi.yaml >> src/Generated.ts
-
-git apply $SCRIPT_DIR/generated.patch
-
-pnpm biome format src/Generated.ts --write
-pnpm biome check src/Generated.ts --write
-
-rm -r tmp
+curl --fail --silent --show-error --location https://developer.zendesk.com/zendesk/oas.yaml -o "$work_dir/openapi.yaml"
+# rc.117 cannot parse compact nested YAML sequences in Zendesk's spec.
+# Convert syntax only; all schema changes are handled by openapigen --patch.
+pnpm exec yaml --json --single --strict < "$work_dir/openapi.yaml" > "$work_dir/openapi.json"
+if ! pnpm exec openapigen --spec "$work_dir/openapi.json" --patch scripts/openapi.patch.json > "$work_dir/Generated.ts"; then
+  cat "$work_dir/Generated.ts" >&2
+  exit 1
+fi
+pnpm exec biome format --files-max-size=5000000 --stdin-file-path=src/Generated.ts < "$work_dir/Generated.ts" > "$work_dir/Formatted.ts"
+test -s "$work_dir/Formatted.ts"
+cp "$work_dir/Formatted.ts" src/Generated.ts

@@ -2,25 +2,25 @@
  * @since 1.0.0
  */
 
-import * as HttpClient from "@effect/platform/HttpClient";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import type { ConfigError } from "effect/Config";
 import * as Config from "effect/Config";
-import type { ConfigError } from "effect/ConfigError";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
 import * as Layer from "effect/Layer";
 import type * as Redacted from "effect/Redacted";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as Generated from "./Generated.js";
 
 /**
  * @since 1.0.0
  * @category Context
  */
-export class ZendeskClient extends Context.Tag("zendesk-mcp/ZendeskClient")<
+export class ZendeskClient extends Context.Service<
   ZendeskClient,
   Generated.Client
->() {}
+>()("zendesk-mcp/ZendeskClient") {}
 
 /**
  * @since 1.0.0

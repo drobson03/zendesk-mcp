@@ -1,0 +1,33 @@
+[
+  {
+    "op": "remove",
+    "path": "/paths/~1api~1v2~1users~1update_many/put/requestBody/content/application~1json/schema/additionalProperties"
+  },
+  {
+    "op": "remove",
+    "path": "/components/schemas/JobStatusResultObject/additionalProperties"
+  },
+  {
+    "op": "remove",
+    "path": "/components/schemas/UserInput/additionalProperties"
+  },
+  {
+    "op": "remove",
+    "path": "/components/schemas/UserObject/additionalProperties"
+  },
+  {
+    "op": "replace",
+    "path": "/components/schemas/CustomObjectRecordFilterExpressionLevel1/allOf/1",
+    "value": {
+      "type": "object",
+      "properties": {
+        "$and": false,
+        "$or": false
+      }
+    }
+  },
+  {
+    "op": "remove",
+    "path": "/components/schemas/TargetObject/example"
+  }
+]
