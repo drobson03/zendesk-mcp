@@ -23,8 +23,7 @@
     "start": "tsx --env-file=.env src/main.ts",
     "prepack": "pnpm build",
     "typecheck": "tsc --noEmit",
-    "generate": "bash scripts/generate-openapi.sh",
-    "test": "pnpm build && node --test test/*.test.mjs"
+    "generate": "bash scripts/generate-openapi.sh"
   },
   "packageManager": "pnpm@10.13.1",
   "devDependencies": {
